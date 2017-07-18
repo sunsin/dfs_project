@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h1>hello 2</h1>
+
+<script src="base64.min.js"></script>
+<script src="cookie.min.js"></script>
+<script src="jquery.min.js"></script>
+<script src="jquery.cookie.js"></script>
+<script>
+
+    $(function () {
+        // First set a cookie
+        var userinfo = {
+            name : 'hello',
+            id   : 'haha'
+        }
+
+        userinfo = JSON.stringify(userinfo);
+
+
+
+        $.cookie('key', userinfo);
+
+// Get the cookie value
+
+// Using the alias
+        var k2 = $.cookie('key'); // "value"
+
+        console.log(k2);
+
+
+    });
+</script>
+</body>
+</html>

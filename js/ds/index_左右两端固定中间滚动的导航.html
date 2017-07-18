@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>{title}_懒人图库</title>
+
+	<!--demo展示所用css，不用关心 begin-->
+	<link rel="stylesheet" type="text/css" href="http://gmu.baidu.com/demo/assets/reset.css" />
+	<!--demo展示所用css end-->
+	<!--组件依赖css begin-->
+	<link rel="stylesheet" type="text/css" href="css/widget/navigator/navigator.css" />
+	<link rel="stylesheet" type="text/css" href="css/widget/navigator/navigator.iscroll.css" />
+	<link rel="stylesheet" type="text/css" href="css/widget/navigator/navigator.default.css" /><!--皮肤文件，若不使用该皮肤，可以不加载-->
+	<link rel="stylesheet" type="text/css" href="css/widget/navigator/navigator.iscroll.default.css" /><!--皮肤文件，若不使用该皮肤，可以不加载-->
+	<!--组件依赖css end-->
+	<!--组件依赖js begin-->
+	<script type="text/javascript" src="js/zepto.js"></script>
+	<script type="text/javascript" src="js/zepto.extend.js"></script>
+	<script type="text/javascript" src="js/zepto.ui.js"></script>
+	<script type="text/javascript" src="js/zepto.iscroll.js"></script>
+	<script type="text/javascript" src="js/widget/navigator.js"></script>
+	<script type="text/javascript" src="js/widget/navigator.iscroll.js"></script>
+	<!--组件依赖js end-->
+    
+</head>
+
+<body>
+<!-- 代码开始 -->
+<div id="fix-both">
+    <a class="ui-navigator-fixleft" href="#">fixleft</a> <!-- 如果只需要右侧固定，请删除这个a标签 -->
+    <ul>
+        <li><a href="#">要闻</a></li>
+        <li><a href="#">国内</a></li>
+        <li><a class="cur" href="#">国际</a></li>
+        <li><a href="#">军事</a></li>
+        <li><a href="#">社会</a></li>
+        <li><a href="#">娱乐</a></li>
+        <li><a href="#">女人</a></li>
+        <li><a href="#">体育</a></li>
+        <li><a href="#">科技</a></li>
+        <li><a href="#">互联网</a></li>
+        <li><a href="#">教育</a></li>
+        <li><a href="#">财经</a></li>
+        <li><a href="#">房产</a></li>
+        <li><a href="#">汽车</a></li>
+    </ul>
+    <a class="ui-navigator-fixright" href="#">fixright</a> <!-- 如果只需要左侧固定，请删除这个a标签 -->
+</div>
+<script type="text/javascript">
+    (function () {
+        /*组件初始化js begin*/
+        $('#fix-both').navigator({     //左右都有fix元素
+            isScrollToNext: false,      //出现半个tab时，不跳动到下一个tab
+            isShowShadow: false       //不显示左右阴影
+        });
+    })();
+</script>
+<!-- 代码结束 -->
+
+<style type="text/css">
+.my_info{ margin:30px;}
+.my_info p{ text-align:center; font:normal 12px/30px 'MicroSoft YaHei';}
+</style>
+<div class="my_info">
+  <p>来源：<a href="http://gmu.baidu.com/" target="_blank" style="color:#0099FF">GMU</a>　代码整理：<a href="http://www.lanrentuku.com/" target="_blank" style="color:#0099FF">懒人图库</a>　感谢：<a href="http://zheye.cc/" target="_blank" style="color:#0099FF">剑雨</a></p>
+  <p>＊尊重他人劳动成果，转载请自觉注明出处！注：此代码仅供学习交流，请勿用于商业用途。</p>
+  <p>{download}</p>
+  <p>{content}</p>
+  <p>{google_729x90}</p>
+</div>
+</body>
+</html>

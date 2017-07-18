@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>大夫说</title>
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+	<script src="js/jquery.min.js"></script>
+	<script src="js/jquery-3.0.0.min.js"></script>
+	<script src="js/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="js/bower_components/fastclick/lib/fastclick.js"></script>
+	<script>
+		$(function(){
+			FastClick.attach(document.body);
+		})
+	</script>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<script src='js/bootstrap.min.js'></script>
+	<!-- <link rel="stylesheet" href="css/public.css" class='publiccss'> -->
+	<link rel="stylesheet" href="css/topic.css">
+	<script src="js/dfs.js"></script>
+	<!--<script src="../js/get_info.js"></script>-->
+</head>
+<body>
+
+	<hotVideo></hotVideo>
+	<nav class="navbar navbar-default navbar-fixed-bottom">
+	        <div class="container">
+	            <div class="col-md-3 col-xs-3">
+	                <a href="../index.html" class="index">首页</a>
+	            </div>
+	            <div class="col-md-3 col-xs-3">
+	                <a href="../topic.html" class="channel">频道</a>
+	            </div>
+	            <div class="col-md-3 col-xs-3">
+	                <a href="html/answer.html" class="answerquestion">问答</a>
+	            </div>
+	            <div class="col-md-3 col-xs-3" >
+	                <a href="html/mine.html" class="my">我的</a>
+	            </div>
+	        </div>
+	    </nav>
+
+</body>
+
+<script src="js/riot+compiler.min.js"></script>
+<script src="js/riotcontrol.js"></script>
+<script src="js/store/videoListStore.js"></script>
+<script type="riot/tag" src="js/riot/main.tag"></script>
+<script type="riot/tag" src="js/riot/nav.tag"></script>
+<script type="text/javascript">
+
+    $(function(){
+        var vstore = new VideoListStore();
+        RiotControl.addStore(vstore);
+        riot.mount("*");
+
+    })
+
+</script>
+
+<script type="text/javascript">
+	window.zhuge = window.zhuge || [];
+	window.zhuge.methods = "_init debug identify track trackLink trackForm page".split(" ");
+	window.zhuge.factory = function(b) {
+		return function() {
+			var a = Array.prototype.slice.call(arguments);
+			a.unshift(b);
+			window.zhuge.push(a);
+			return window.zhuge;
+		}
+	};
+	for (var i = 0; i < window.zhuge.methods.length; i++) {
+		var key = window.zhuge.methods[i];
+		window.zhuge[key] = window.zhuge.factory(key);
+	}
+	window.zhuge.load = function(b, x) {
+		if (!document.getElementById("zhuge-js")) {
+			var a = document.createElement("script");
+			var verDate = new Date();
+			var verStr = verDate.getFullYear().toString()
+					+ verDate.getMonth().toString() + verDate.getDate().toString();
+
+			a.type = "text/javascript";
+			a.id = "zhuge-js";
+			a.async = !0;
+			a.src = (location.protocol == 'http:' ? "http://sdk.zhugeio.com/zhuge-lastest.min.js?v=" : 'https://zgsdk.zhugeio.com/zhuge-lastest.min.js?v=') + verStr;
+			var c = document.getElementsByTagName("script")[0];
+			c.parentNode.insertBefore(a, c);
+			window.zhuge._init(b, x)
+		}
+	};
+	window.zhuge.load('80166cfa7cc74f929f7af3368f5291e3');
+</script>
+</html>

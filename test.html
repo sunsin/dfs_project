@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="js/jquery.min.js"></script>
+</head>
+<body>
+	<p>
+		fdsjal<br>dksa;fasd;<br />dsadf
+	</p>
+	<div class='dsf'></div>
+</body>
+<script>
+	$(function(){
+		var str = "fjdsaklfjasdl\nfdasfdfsa\ndfasfjsalfdms";
+		str.replace("\n","<br>");
+		console.log(str);
+		$(".dsf").html(str);
+	})
+	
+</script>
+</html>

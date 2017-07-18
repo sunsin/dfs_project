@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>大夫说</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <script src="../js/jquery-3.0.0.min.js"></script>
+    <script src="../js/bower_components/fastclick/lib/fastclick.js"></script>
+    <script>
+        $(function(){
+            FastClick.attach(document.body);
+        })
+    </script>
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+    <script src='../js/bootstrap.min.js'></script>
+    <link rel="stylesheet" href="../css/public.css">
+    <link rel="stylesheet" href="../css/search.css">
+    <script src="../js/dfs.js"></script>
+    <script src="../js/get_info.js"></script>
+</head>
+<body>
+<div class="search" style="margin-top: 0">
+    <div class="" style="height: auto;padding: 10px 0px 0px 0px;">
+        <span class="forword"style="float: left;height: 32px;padding: 10px 10px 10px 40px;"></span>
+        <input type="text" placeholder="搜索科室" autofocus value="" id="search-input" style="width: 70%;"/>
+        <button onclick="{ value }"></button>
+    </div>
+    <div class="roomSearch"></div>
+</div>
+</body>
+<script src="../js/riot+compiler.min.js"></script>
+<script src="../js/riotcontrol.js"></script>
+<script type="text/javascript">
+
+    $(function(){
+        var value;
+        $("button").click(function(){
+            value = $("input").val();
+            var search = {"query": value};
+            $.post("http://api.daifushuo.com:80/api/search/dfs_search_room",search,function(data) {
+                console.log(data);
+                if(data.length >= 1) {
+                    $(".roomSearch").append("<div class='videoSearch'>视频</div>");
+                    for (var i = 0; i <= 4; i++) {
+                        var content = data[i].content;
+                        var vid = data[i]._id;
+                        var userid = data[i].userid;
+                        var title = data[i].title;
+                        var img = data[i].vlink;
+                        var viewersnum = data[i].viewersnum;
+                        var ilikecnt = data[i].ilikecnt;
+                        var videoList = "<a href='videoDetail.html#/video/" + vid +"/"+ userid+"'><div class='col-md-6 col-xs-6'><img src='" + img + "window.flag'></div><div class='col-md-6 col-xs-6'><div class='title'>" + title + "</div><div class='content'>" + content + "</div><div class='bottom'><span class='ilikecnt'>" + ilikecnt + "</span><span class='viewnum'>"+ viewersnum +"</span></div></div></div></a>";
+                        $(".roomSearch").append(videoList);
+                    }
+                }
+            });
+        });
+    })
+</script>
+</html>

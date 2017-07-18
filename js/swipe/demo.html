@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">	
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.touchSwipe.min.js"></script>
+
+<title>手机导航拖动效果</title>
+
+<style type="text/css">
+*{margin:0;padding:0;list-style-type:none;}
+a,img{border:0;}
+body{font-size: 13px;line-height: 18px;color: #333;width:100%;}
+
+/* nav */
+.nav{margin-top:20px;overflow:hidden;width:100%;height:300px;font-weight: 300;font-size: 20px;line-height: 36px;position:relative;}
+.nav .line{ position:absolute;height:60px;left:0;line-height:60px;text-align:center;background:#2c63a6;cursor:pointer;}
+.nav .line li{float:left;height:30px;}
+.nav .line li:first-child{ background:none;}
+.nav .line li a{ color:#fff;text-decoration:none;}
+</style>
+
+</head>	
+<body>	
+
+
+
+<div style="text-align:center; padding-top:30px">手机演示：拖动查看效果</div>
+
+<div class="nav">
+    <ul class="line">
+        <li><a href="#">新 闻</a></li>
+        <li><a href="#">网 页</a></li>
+        <li><a href="#">贴 吧</a></li>
+        <li><a href="#">知 道</a></li>
+        <li><a href="#">音 乐</a></li>
+        <li><a href="#">图 片</a></li>
+        <li><a href="#">视 频</a></li>
+        <li><a href="#">地 图</a></li>
+    </ul>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	n=$('.line li').size();				
+	var wh=100*n+"%";
+	$('.line').width(wh);
+	var lt=(100/n/4);
+	var lt_li=lt+"%";
+	$('.line li').width(lt_li);			
+	var y=0;
+	var w=n/2;						
+	$(".line").swipe( {					
+		swipeLeft:function() {
+			if(y==-lt*w){
+				//alert('已经到最后页');
+			}else{
+				y=y-lt;								
+				var t=y+"%";									
+				$(this).css({'-webkit-transform':"translate("+t+")",'-webkit-transition':'500ms linear'} );	
+			}
+		},
+		swipeRight:function() {
+			if(y==0){
+				//alert('已经到第一页')
+			}else{
+				y=y+lt;
+				var t=y+"%";
+				$(this).css({'-webkit-transform':"translate("+t+")",'-webkit-transition':'500ms linear'} );	
+			}
+			
+		}
+	});
+});						
+</script>	
+	
+</body>
+</html>

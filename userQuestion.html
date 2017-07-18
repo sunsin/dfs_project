@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>大夫说</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <script src="../js/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../js/bower_components/fastclick/lib/fastclick.js"></script>
+    <script>
+        $(function(){
+            FastClick.attach(document.body);
+        })
+    </script> 
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/public.css">
+    <link rel="stylesheet" href="../css/answer.css">
+    <script src='../js/bootstrap.min.js'></script>
+    <!-- <object data="../js/Android-AdvancedWebView.jar" type="" width="0" height="0"></object> -->
+    <script src="../js/bower_components/plupload/js/plupload.full.min.js"></script>
+    <script src="../js/bower_components/qiniu/dist/qiniu.min.js"></script>
+    <script src="../js/dfs.js"></script>
+    <script src="../js/get_info.js"></script>
+</head>
+<body>
+    <div class="cancle" onclick="cancle();" style="background: #fff url(../images/playMain/Back_ic.png) no-repeat 10px center;background-size: 20px 16px;text-align: center;line-height: 40px;font-size: 1.8rem;">
+        <div class="back"><span>图文咨询</span></div>
+    </div>
+    <userquestion></userquestion>
+    <div class="questionbox">
+        <div class="question">
+            <!-- <div class="title">症状描述与展示</div> -->
+            <textarea placeholder="请详细描述不舒服的部位，主要症状、持续时间，并上传对应的图片，全面的信息可以让您获得医生更准确详细的回答。" id="nodes"></textarea>
+            <div class="imgforquestion">
+                <div class="img_div"></div>
+                <!-- <a href="javascript:;" class="a-upload">
+                    <input type="file" name="myFile" id="myFile" multiple="multiple" />
+                </a> -->
+                <div class="container">
+                    
+                    <div class="body">
+                        <div class="">
+                            <div id="container">
+                                <a class="btn btn-default btn-lg " id="pickfiles" href="#" >
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="upload-container"></div>
+                </div>
+                
+                
+            </div>
+            <div class="ispublic" onclick="is_public();">
+                <span class="is_true_public"></span>
+                <span>公开提问，回答每被人观看一次，您从中分成一半费用</span>
+            </div>
+        </div>
+        <div class="confirm">
+            <div>咨询提示：</div>
+            <div>1、医生将在72小时内给您解答。</div>
+            <div>2、超过72小时未解答，将按支付路径全额退款。</div>
+        </div> 
+    </div> 
+    <div class="warning" style="display: none;">
+        <span>最多上传九张图片！</span>
+    </div>
+    <div class="wechatpay" onclick="paybtn();">
+        <div>¥<span></span>元去微信支付</div>
+    </div>
+    <div class="choose_pay">
+        <div>
+            <div>真的要放弃本次咨询吗？</div>
+            <div>
+                <span onclick="wait();">稍后再问</span>
+                <span onclick="continuePay();">继续咨询</span>
+            </div>
+        </div>
+        
+    </div>
+<script>
+    var flag;
+    //引入Plupload 、qiniu.js后
+    var uploader = Qiniu.uploader({
+        runtimes: 'html5,flash,html4',    
+        browse_button: 'pickfiles',       
+        uptoken_url: 'http://api.daifushuo.com/qn/uptoken2/',            
+        domain: 'http://zone2.daifushuo.com/',   
+        get_new_uptoken: false,  
+        container: 'container',           //上传区域DOM ID，默认是browser_button的父元素，
+        max_file_size: '100mb',           //最大文件体积限制
+        flash_swf_url: 'js/plupload/Moxie.swf',  //引入flash,相对路径
+        max_retries: 0,                   //上传失败最大重试次数
+        multi_selection: true,
+        dragdrop: true,                   //开启可拖曳上传
+        drop_element: 'container',        //拖曳上传区域元素的ID，拖曳文件或文件夹后可触发上传
+        chunk_size: '4mb',                //分块上传时，每片的体积
+        // filters: {
+        //     mime_types : [ //只允许上传图片和zip文件
+        //         { title : "Image files", extensions : "jpg,gif,png" }
+        //     ],
+        //     prevent_duplicates : true //不允许选取重复文件
+        // },
+        auto_start: true,
+        resize: {
+            width: 200,
+            height: 200,
+            crop: false,
+            quality: 60,
+            preserve_headers: false
+        },              
+        init: {
+            'FilesAdded': function(up, files) {
+                
+                plupload.each(files, function(file) {
+                    // 文件添加进队列后,处理相关的事情
+                    
+                });
+            },
+            'BeforeUpload': function(up, file) {
+                   // 每个文件上传前,处理相关的事情
+                // if($(".img-item").length>2){
+                //     return ;
+                // }
+            },
+            'UploadProgress': function(up, file) {
+                   // 每个文件上传时,处理相关的事情
+            },
+            'FileUploaded': function(up, file, info) {
+                    if(up.files.length>9){
+                        $(".warning").fadeOut(3000);
+                        return ;
+                    }else{
+                        var nakedUrl = '';
+                        var getimglink = function(plup,resinfo) {
+                            var res = $.parseJSON(resinfo);
+                            var imgLink = Qiniu.watermark({
+                                 mode: 2,
+                                 text: '大夫说',
+                                 dissolve: 90,
+                                 gravity: 'SouthEast',
+                                 fontsize: 550,         
+                                 font : '黑体',          
+                                 dx: 10,  
+                                 dy: 10,  
+                                 fill: '#FFFFFF'        
+                             }, res.key);
+                            nakedUrl = 'http://zone2.daifushuo.com/' + res.key;
+                            return imgLink;
+
+                        };
+                        var imglink = getimglink(up, info);
+                        var img= "<div class='img-item'><div class='"+ file.id +"'>X</div><img src=' "+ nakedUrl + "' ></div>";
+                        $("#upload-container").append(img);
+                        $("."+file.id).click(function(){
+                            $(this).parent().remove();
+                        });
+                    }
+                    
+            },
+            'Error': function(up, err, errTip) {
+                   //上传出错时,处理相关的事情
+            },
+            'UploadComplete': function() {
+                   //队列文件处理完毕后,处理相关的事情
+                   return flag = true;
+            },
+            'Key': function(up, file) {
+
+                var key = '';
+                var timeStamp =  (new Date()).valueOf();
+                var ext = Qiniu.getFileExtension(file.name);
+                key = 'image/' + timeStamp + '-' + file.id + '.' + ext;
+                console.log(key);
+                return key;
+            }
+        }
+    });
+</script>
+</body>
+<script>
+    var orderDetail;
+    var ispublic = "true";
+    var num = 1;
+    
+
+    function cancle(){
+        var choose_pay = document.getElementsByClassName("choose_pay")[0];
+        choose_pay.style.display = "block";
+    };
+    function wait(){
+        var url = document.referrer
+        window.location.href = url;
+    }
+    function continuePay(){
+        var choose_pay = document.getElementsByClassName("choose_pay")[0];
+        choose_pay.style.display = "none";
+    }
+
+    function is_public(){
+        if(num%2 == 0){
+            ispublic = "true";
+            $(".ispublic").find("span").eq(0).addClass("is_true_public");
+        }else{
+            ispublic = "false";
+            $(".ispublic").find("span").eq(0).removeClass("is_true_public");
+        }
+        num++;
+        
+    }
+    
+    
+    function onBridgeReady(){
+        if(ispublic != "true"){
+            ispublic = "false";
+        }
+        var imgBox = [];
+        $(".img-item").each(function(){
+            var imgUrl = $(this).find("img").attr("src");
+            if(!imgUrl){
+                imgBox = imgBox;
+            }else{
+                imgBox.push(imgUrl);
+            }
+            
+        })
+        var userinfo = jQuery.parseJSON(dfs.getCookie('userinfo'));
+        var dfs_token = jQuery.parseJSON(dfs.getCookie('dfs_token'));
+        var total_fee = $(".wechatpay").find("span").text()*100;
+        var refreshurl;
+        if( !document.referrer ){
+            refreshurl = location.href;
+        }else{
+            refreshurl = document.referrer;
+        };
+        //console.log(userinfo);
+        var question= {
+            "title": $("#nodes").val(),
+            "ask_userid": dfs_token.userId,
+            "answer_userid" : location.search.split("doctorid=")[1].split("&")[0],
+            "total_fee": total_fee,
+            "spbill_create_ip": "10.10.10.2",
+            "trade_type": "JSAPI",
+            "openid": userinfo.openid,
+            "ispublic" : ispublic,
+            "pictures" : imgBox
+        };
+        //console.log(question);
+        $.post('http://api.daifushuo.com:80/api/oquestion/dfs_ask_question',question,function(data){
+            orderDetail = data;
+            if(data.res == "SUCCESS"){
+                //alert("免费提问");
+                window.location.href = refreshurl;
+            }else{
+                 WeixinJSBridge.invoke(
+                'getBrandWCPayRequest',orderDetail,
+                     function(res){   
+                         var order={
+                             "out_trade_no": orderDetail.out_trade_no,
+                             "trade_type": "JSAPI"
+                         };
+                         
+                         $.post("http://api.daifushuo.com:80/api/order/dfs_order_query?access_token="+dfs_token.id,order,function(data){
+                             window.location.href = refreshurl;
+                             
+                         }); 
+                         //window.location.href = refreshurl; 
+                         if(res.err_msg == "get_brand_wcpay_request：ok" ) {
+                             window.location.href = refreshurl;
+                         }else{
+                             alert(支付失败);  
+                             //window.location.href = refreshurl;  
+                         }
+                             
+                     }
+                 ); 
+            }
+            //console.log(data);
+            
+        });
+        
+    }
+    
+    
+    function paybtn(){
+        if($(".img-item").length == 0){
+            flag = true;
+        }else{
+            flag = flag;
+        };
+        if(flag == true){
+            if (typeof WeixinJSBridge == "undefined"){
+                if( document.addEventListener ){
+                    document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+                }else if (document.attachEvent){
+                    document.attachEvent('WeixinJSBridgeReady', onBridgeReady); 
+                    document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+                }
+            }else{
+                onBridgeReady();
+            } 
+        }else{
+            alert("稍等哦");
+        }
+        
+        
+    }
+</script>
+<script src="../js/riot+compiler.min.js"></script>
+<script src="../js/riotcontrol.js"></script>
+<script src="../js/store/videoDetailStore.js"></script>
+<script type="riot/tag" src="../js/riot/userquestion.tag"></script>
+<script type="text/javascript">
+    $(function(){
+
+        // $(".closeImg").click(function(){
+        //     $(this).parent().hide();
+        // })
+
+        var  videoDetailStore = new VideoDetailStore();
+        RiotControl.addStore(videoDetailStore);
+        riot.mount("*");
+    })
+</script>
+</html>

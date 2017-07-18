@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>大夫说</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <script src="../js/jquery-3.0.0.min.js"></script>
+    <script src="../js/bower_components/fastclick/lib/fastclick.js"></script>
+    <script>
+        $(function(){
+            FastClick.attach(document.body);
+        })
+    </script>
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+    <script src='../js/bootstrap.min.js'></script>
+    <link rel="stylesheet" href="../css/public.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <script src="../js/dfs.js"></script>
+    <script src="../js/swipe/js/jquery.touchSwipe.min.js"></script>
+    <!--<script src="../js/get_info.js"></script>-->
+    <style type="text/css">
+        .nav{
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+        }
+        .nav .line{
+            padding: 0;
+            float: left;
+            width: 2000px;
+        }
+        .nav .line li{
+            list-style: none;
+            display: inline-block;
+            padding: 5px;
+        }
+        .nav .line li:first-child{;
+
+        }
+        .nav .line li a{
+
+        }
+        .search{
+            margin-top: 40px !important;
+        }
+    </style>
+</head>
+<body>
+
+<test></test>
+<nav class="navbar navbar-default navbar-fixed-bottom">
+    <div class="container">
+        <div class="col-md-4 col-xs-4">
+            <a href="index.html" class="index">首页</a>
+        </div>
+        <div class="col-md-4 col-xs-4">
+            <a href="../topic.html" class="channel">频道</a>
+        </div>
+        <div class="col-md-4 col-xs-4" >
+            <a href="html/mine.html" class="my">我的</a>
+        </div>
+    </div>
+</nav>
+</body>
+
+<script src="../js/riot+compiler.min.js"></script>
+<script src="../js/riotcontrol.js"></script>
+<script src="../js/store/videoListStore.js"></script>
+<script type="riot/tag" src="../js/riot/test.tag"></script>
+<script type="text/javascript">
+
+    $(function(){
+        var vstore = new VideoListStore();
+        RiotControl.addStore(vstore);
+        riot.mount("*");
+    })
+</script>
+<script type="text/javascript">
+    $(function(){
+        n=$('.line li').size();
+        var wh=100*n+"%";
+        $('.line').width(wh);
+        var lt=(100/n/4);
+        var lt_li=lt+"%";
+        $('.line li').width(lt_li);
+        var y=0;
+        var w=n/2;
+        $(".line").swipe( {
+            swipeLeft:function() {
+                if(y==-lt*w){
+                    //alert('已经到最后页');
+                }else{
+                    y=y-lt;
+                    var t=y+"%";
+                    $(this).css({'-webkit-transform':"translate("+t+")",'-webkit-transition':'500ms linear'} );
+                }
+            },
+            swipeRight:function() {
+                if(y==0){
+                    //alert('已经到第一页')
+                }else{
+                    y=y+lt;
+                    var t=y+"%";
+                    $(this).css({'-webkit-transform':"translate("+t+")",'-webkit-transition':'500ms linear'} );
+                }
+
+            }
+        });
+    });
+</script>
+</html>

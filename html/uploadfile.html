@@ -1,0 +1,324 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>大夫说</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <script src="../js/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../js/bower_components/fastclick/lib/fastclick.js"></script>
+    <script>
+        $(function(){
+            FastClick.attach(document.body);
+        })
+    </script> 
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/public.css">
+    <link rel="stylesheet" href="../css/answer.css">
+    <script src='../js/bootstrap.min.js'></script>
+    <script src="../js/bower_components/plupload/js/plupload.full.min.js"></script>
+    <script src="../js/bower_components/plupload/js/moxie.js"></script>
+    <script src="../js/bower_components/plupload/js/plupload.dev.js"></script>
+    <script src="../js/bower_components/qiniu/dist/qiniu.min.js"></script>
+    <script src="../js/dfs.js"></script>
+    <script src="../js/get_info.js"></script>
+</head>
+<body>
+    <div class="cancle" onclick="cancle();" style="background: #fff url(../images/playMain/Back_ic.png) no-repeat 10px center;background-size: 20px 16px;text-align: center;line-height: 40px;font-size: 1.8rem;">
+        <div class="back"><span>图文咨询</span></div>
+    </div>
+    <!-- <userquestion></userquestion> -->
+    <div class="questionbox">
+        <div class="question">
+            <div class="title">症状描述与展示</div>
+            <textarea placeholder="请详细描述不舒服的部位，主要症状、持续时间，并上传对应的图片，全面的信息可以让您获得医生更准确详细的回答。"></textarea>
+            <div class="imgforquestion">
+                
+                <!-- <a href="javascript:;" class="a-upload">
+                    <input type="file" name="myFile" id="myFile" multiple="multiple" />
+                </a> -->
+                <div class="container">
+
+                    <div class="body">
+                        <div class="col-md-12">
+                            <div id="container">
+                                <a class="btn btn-default btn-lg " id="pickfiles" href="#" >
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>选择文件</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="upload-container"></div>
+                <div class="shade" onclick="javascript:closeShade()">
+                    <div class="">
+                        <span class="text_span">
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="shadeImg" onclick="javascript:closeShadeImg()">
+                    <div class="">
+                        <img class="showImg" src=""/>
+                    </div>
+                </div>
+            </div>
+            <div class="ispublic" onclick="is_public();">
+                <span></span>
+                <span>公开提问，回答每被人观看一次，您从中分成一半费用</span>
+            </div>
+        </div>
+        <div class="confirm">
+            <div>咨询提示：</div>
+            <div>1、医生将在48小时内给您解答。</div>
+            <div>2、超过24小时未解答，将按支付路径全额退款。</div>
+        </div> 
+    </div> 
+    <div class="wechatpay" onclick="paybtn();">
+        <div>¥<span></span>元去微信支付</div>
+    </div>
+    <div class="choose_pay">
+        <div>
+            <div>真的要放弃本次咨询吗？</div>
+            <div>
+                <span onclick="wait();">稍后再问</span>
+                <span onclick="continuePay();">继续咨询</span>
+            </div>
+        </div>
+        
+    </div>
+</body>
+<script>
+
+    //引入Plupload 、qiniu.js后
+    var uploader = Qiniu.uploader({
+        runtimes: 'html5,flash,html4',    //上传模式,依次退化
+        browse_button: 'pickfiles',       //上传选择的点选按钮，**必需**
+        uptoken_url: 'http://api.daifushuo.com/qn/uptoken2/',            //Ajax请求upToken的Url，**强烈建议设置**（服务端提供）
+        // uptoken : '', //若未指定uptoken_url,则必须指定 uptoken ,uptoken由其他程序生成
+        // unique_names: true, // 默认 false，key为文件名。若开启该选项，SDK为自动生成上传成功后的key（文件名）。
+        // save_key: true,   // 默认 false。若在服务端生成uptoken的上传策略中指定了 `sava_key`，则开启，SDK会忽略对key的处理
+        domain: 'http://zone2.daifushuo.com/',   //bucket 域名，下载资源时用到，**必需**
+        filters: {
+            mime_types : [   // 只允许上传图片
+                {title : "Image files", extensions: "jpg,jpeg,bmp,gif,png,dcm"}
+            ],
+            prevent_duplicates : true //不允许选取重复文件
+        },
+        get_new_uptoken: false,  //设置上传文件的时候是否每次都重新获取新的token
+        container: 'container',           //上传区域DOM ID，默认是browser_button的父元素，
+        max_file_size: '100mb',           //最大文件体积限制
+        flash_swf_url: 'js/plupload/Moxie.swf',  //引入flash,相对路径
+        max_retries: 3,                   //上传失败最大重试次数
+        dragdrop: true,                   //开启可拖曳上传
+        drop_element: 'container',        //拖曳上传区域元素的ID，拖曳文件或文件夹后可触发上传
+        chunk_size: '4mb',                //分块上传时，每片的体积
+        auto_start: true,                 //选择文件后自动上传，若关闭需要自己绑定事件触发上传
+        init: {
+            'FilesAdded': function(up, files) {
+                plupload.each(files, function(file) {
+                    // 文件添加进队列后,处理相关的事情
+                    var imgItem = "<div><img src='"+ file.name +"'/></div>"
+                });
+            },
+            'BeforeUpload': function(up, file) {
+                   // 每个文件上传前,处理相关的事情
+            },
+            'UploadProgress': function(up, file) {
+                   // 每个文件上传时,处理相关的事情
+            },
+            'FileUploaded': function(up, file, info) {
+                   // 每个文件上传成功后,处理相关的事情
+                   // 其中 info 是文件上传成功后，服务端返回的json，形式如
+                   // {
+                   //    "hash": "Fh8xVqod2MQ1mocfI4S4KpRL6D98",
+                   //    "key": "gogopher.jpg"
+                   //  }
+                   // 参考http://developer.qiniu.com/docs/v6/api/overview/up/response/simple-response.html
+
+                   // var domain = up.getOption('domain');
+                   // var res = parseJSON(info);
+                   // var sourceLink = domain + res.key; 获取上传成功后的文件的Url
+                   var nakedUrl = '';
+                    var getimglink = function(plup,resinfo) {
+                        var res = $.parseJSON(resinfo);
+                        var imgLink = Qiniu.watermark({
+                             mode: 2,
+                             text: '大夫说',
+                             dissolve: 90,
+                             gravity: 'SouthEast',
+                             fontsize: 550,         // 字体大小，单位: 缇
+                             font : '黑体',          // 水印文字字体
+                             dx: 10,  // 横轴边距，单位:像素(px)
+                             dy: 10,  // 纵轴边距，单位:像素(px)
+                             fill: '#FFFFFF'        // 水印文字颜色，RGB格式，可以是颜色名称
+                         }, res.key);
+                        nakedUrl = 'http://zone2.daifushuo.com/' + res.key;
+                        return imgLink;
+
+                    };
+                    var imglink = getimglink(up, info);
+                    var img= "<div class='img-item'><img src=' "+ nakedUrl + "'?imageView2/1/w/80/h/80' ></div>";
+                    $("#upload-container").append(img);
+            },
+            'Error': function(up, err, errTip) {
+                   //上传出错时,处理相关的事情
+            },
+            'UploadComplete': function() {
+                   //队列文件处理完毕后,处理相关的事情
+            },
+            'Key': function(up, file) {
+                // 若想在前端对每个文件的key进行个性化处理，可以配置该函数
+                // 该配置必须要在 unique_names: false , save_key: false 时才生效
+
+                var key = '';
+                var timeStamp =  (new Date()).valueOf();
+                var ext = Qiniu.getFileExtension(file.name);
+                key = 'image/' + timeStamp + '-' + file.id + '.' + ext;
+                console.log(key);
+                return key;
+            }
+        }
+    });
+
+    // domain 为七牛空间（bucket)对应的域名，选择某个空间后，可通过"空间设置->基本设置->域名设置"查看获取
+
+    // uploader 为一个plupload对象，继承了所有plupload的方法，参考http://plupload.com/docs
+                        
+</script>
+<script>
+    var orderDetail;
+    var ispublic;
+    var num = 1;
+    
+    
+    function cancle(){
+        var choose_pay = document.getElementsByClassName("choose_pay")[0];
+        choose_pay.style.display = "block";
+    };
+    function wait(){
+        var url = document.referrer
+        window.location.href = url;
+    }
+    function continuePay(){
+        var choose_pay = document.getElementsByClassName("choose_pay")[0];
+        choose_pay.style.display = "none";
+    }
+
+    function is_public(){
+        if(num%2 == 1){
+            ispublic = "true";
+            $(".ispublic").find("span").eq(0).addClass("is_true_public");
+        }else{
+            ispublic = "false";
+            $(".ispublic").find("span").eq(0).removeClass("is_true_public");
+        }
+        num++;
+        
+    }
+    
+    
+    function onBridgeReady(){
+        if(ispublic != "true"){
+            ispublic = "false";
+        }
+        var imgBox = [];
+        $(".img_div").each(function(){
+            var imgUrl = $(this).find("img").attr("iurl");
+            var image = new Image();
+            image.src = imgUrl;
+            image.onload = function(){
+                var base64 = getBase64Image(image);
+                //console.log(base64);
+            };
+            if(!imgUrl){
+                imgBox = imgBox;
+            }else{
+                imgBox.push(image.src);
+            }
+            
+        })
+        var userinfo = jQuery.parseJSON(dfs.getCookie('userinfo'));
+        var dfs_token = jQuery.parseJSON(dfs.getCookie('dfs_token'));
+        var total_fee = $(".wechatpay").find("span").text()*100;
+        //console.log(userinfo);
+        var question= {
+            "title":"",
+            "ask_userid": dfs_token.userId,
+            "answer_userid" : location.search.split("doctorid=")[1].split("&")[0],
+            "total_fee": 1,
+            "spbill_create_ip": "10.10.10.2",
+            "trade_type": "JSAPI",
+            "openid": userinfo.openid,
+            "ispublic" : ispublic,
+            "pictures" : imgBox
+        };
+        console.log(question);
+        $.post('http://api.daifushuo.com:80/api/oquestion/dfs_ask_question',question,function(data){
+            orderDetail = data;
+            //console.log(data);
+            WeixinJSBridge.invoke(
+           'getBrandWCPayRequest',orderDetail,
+                function(res){   
+                    var order={
+                        "out_trade_no": orderDetail.out_trade_no,
+                        "trade_type": "JSAPI"
+                    };
+                    var refreshurl;
+                    if( !document.referrer ){
+                        refreshurl = location.href;
+                    }else{
+                        refreshurl = document.referrer;
+                    };
+                    $.post("http://api.daifushuo.com:80/api/order/dfs_order_query?access_token="+dfs_token.id,order,function(data){
+                        window.location.href = refreshurl;
+                        
+                    }); 
+                    //window.location.href = refreshurl; 
+                    if(res.err_msg == "get_brand_wcpay_request：ok" ) {
+                        window.location.href = refreshurl;
+                    }else{
+                        alert(支付失败);  
+                        //window.location.href = refreshurl;  
+                    }
+                        
+                }
+            ); 
+        });
+        
+    }
+    
+    
+    function paybtn(){
+        /*
+        if (typeof WeixinJSBridge == "undefined"){
+            if( document.addEventListener ){
+                document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+            }else if (document.attachEvent){
+                document.attachEvent('WeixinJSBridgeReady', onBridgeReady); 
+                document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+            }
+        }else{
+            onBridgeReady();
+        } 
+        */
+        
+    }
+</script>
+<!-- 
+<script src="../js/riot+compiler.min.js"></script>
+<script src="../js/riotcontrol.js"></script>
+<script src="../js/store/videoDetailStore.js"></script>
+<script type="riot/tag" src="../js/riot/userquestion.tag"></script>
+<script type="text/javascript">
+    $(function(){
+
+        //
+
+        var  videoDetailStore = new VideoDetailStore();
+        RiotControl.addStore(videoDetailStore);
+        riot.mount("*");
+    })
+</script>-->
+</html> 
